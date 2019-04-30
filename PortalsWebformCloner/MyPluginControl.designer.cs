@@ -158,7 +158,7 @@
             this.cbReadonly.Name = "cbReadonly";
             this.cbReadonly.Size = new System.Drawing.Size(402, 17);
             this.cbReadonly.TabIndex = 0;
-            this.cbReadonly.Text = "Clone  WebForm as Readonly(This will create webform steps in Readonly mode)";
+            this.cbReadonly.Text = "Clone WebForm as Readonly (This will create webform steps in Readonly mode)";
             this.cbReadonly.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.cbReadonly.UseVisualStyleBackColor = true;
             // 

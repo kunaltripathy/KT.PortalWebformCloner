@@ -37,7 +37,7 @@ namespace KT.PortalsWebformCloner
 
         private void MyPluginControl_Load(object sender, EventArgs e)
         {
-            ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
+          //  ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
 
             // Loads or creates the settings for the plugin
             if (!SettingsManager.Instance.TryLoad(GetType(), out _mySettings))
@@ -161,13 +161,23 @@ namespace KT.PortalsWebformCloner
                             MessageBoxIcon.Error);
                         return;
                     }
+                    else
+                    {
+                        MessageBox.Show(this, $"Webform: '{cbWebformToClone.SelectedItem.ToString()}' cloned Successfully", "Success", MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
                 },
                 ProgressChanged = evt =>
                 {
                     SetWorkingMessage(evt.UserState.ToString());
                     SendMessageToStatusBar?.Invoke(this, new StatusBarMessageEventArgs(evt.UserState.ToString()));
+                  
+
                 }
             });
+
+
+
 
             tsbCloneWebform.Enabled = true;
         }
