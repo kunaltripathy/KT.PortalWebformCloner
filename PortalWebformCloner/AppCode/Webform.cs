@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk;
 
-namespace KT.PortalsWebformCloner.AppCode
-{ 
+namespace KT.PortalWebformCloner.AppCode
+{
 
     public class Webform
     {

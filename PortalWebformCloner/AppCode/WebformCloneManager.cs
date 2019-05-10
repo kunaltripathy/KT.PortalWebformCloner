@@ -1,12 +1,12 @@
-﻿using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Query;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using XrmToolBox.Extensibility;
 
-namespace KT.PortalsWebformCloner.AppCode
+namespace KT.PortalWebformCloner.AppCode
 {
     internal class WebformCloneManager
     {
@@ -23,7 +23,7 @@ namespace KT.PortalsWebformCloner.AppCode
         {
             _service = service;
             _logger = new LogManager(GetType());
-           
+
         }
 
         public bool UpdateStepReferences(CloneSetting cs, IOrganizationService service, BackgroundWorker worker)
@@ -35,9 +35,9 @@ namespace KT.PortalsWebformCloner.AppCode
                 _logger.LogInfo("update Webform step reference");
                 foreach (var step in _webFormSteps)
                 {
-                   Guid clonedStepId;
+                    Guid clonedStepId;
                     webformStepGuids.TryGetValue(step.Id, out clonedStepId);
-                        var clonedStep = new Entity("adx_webformstep", clonedStepId);
+                    var clonedStep = new Entity("adx_webformstep", clonedStepId);
 
                     if (step.GetAttributeValue<EntityReference>("adx_nextstep") != null)
                     {
@@ -78,54 +78,73 @@ namespace KT.PortalsWebformCloner.AppCode
 
                     _service.Update(clonedWebform);
                 }
-                worker.ReportProgress(95, true);
             }
             catch (Exception error)
             {
                 _logger.LogInfo(error.Message);
-                var percentage = 95;
-                worker.ReportProgress(percentage, false);
+                throw;
             }
             return false;
         }
 
         private void CloneWebformMetadata(Entity sourceStep, Guid targetStepId)
         {
-            _logger.LogInfo("Retrieve Webform metadata");
-            var webFormStepMetadatas = _service.RetrieveMultiple(new QueryExpression("adx_webformmetadata")
+            try
             {
-                Criteria = new FilterExpression
+                _logger.LogInfo("Retrieve Webform metadata");
+                var webFormStepMetadatas = _service.RetrieveMultiple(new QueryExpression("adx_webformmetadata")
                 {
-                    Conditions =
+                    Criteria = new FilterExpression
                     {
-                        new ConditionExpression("adx_webformstep", ConditionOperator.Equal, sourceStep.Id)
-                    }
-                },
-                ColumnSet = new ColumnSet(true)
-            }).Entities.ToList();
+                        Conditions =
+                        {
+                            new ConditionExpression("adx_webformstep", ConditionOperator.Equal, sourceStep.Id)
+                        }
+                    },
+                    ColumnSet = new ColumnSet(true)
+                }).Entities.ToList();
 
-            _logger.LogInfo("Clone Webform metadata");
-            foreach (var webformstepmetadata in webFormStepMetadatas)
-            {
-                Entity newWebformMetadata = new Entity("adx_webformmetadata");
-
-                //copy all attributes.
-                foreach (var v in webformstepmetadata.Attributes)
+                _logger.LogInfo("Clone Webform metadata");
+                foreach (var webformstepmetadata in webFormStepMetadatas)
                 {
-                    newWebformMetadata.Attributes.Add(v.Key, v.Value);
+                    Entity newWebformMetadata = new Entity("adx_webformmetadata");
+
+                    //copy all attributes.
+                    foreach (var v in webformstepmetadata.Attributes)
+                    {
+                        newWebformMetadata.Attributes.Add(v.Key, v.Value);
+                    }
+
+                    //Remove attributed not to be copied
+                    newWebformMetadata.Attributes.Remove("adx_webformmetadataid");
+                    newWebformMetadata.Attributes.Remove("statecode");
+                    newWebformMetadata.Attributes.Remove("statuscode");
+
+                    //
+
+                    //Change reference for webform step 
+                    newWebformMetadata["adx_webformstep"] = new EntityReference("adx_webformstep", targetStepId);
+
+                    //create webform
+                    var clonedMetadataId = _service.Create(newWebformMetadata);
+
+                    //if webformmetadata was inactive, deactivate the webformmetadata
+                    if (webformstepmetadata.GetAttributeValue<OptionSetValue>("statecode").Value == 1)
+                    {
+                        var clonedMetadata = new Entity("adx_webformmetadata", clonedMetadataId)
+                        {
+                            ["statuscode"] = webformstepmetadata.GetAttributeValue<OptionSetValue>("statuscode"),
+                            ["statecode"] = webformstepmetadata.GetAttributeValue<OptionSetValue>("statecode")
+                        };
+                        _service.Update(clonedMetadata);
+                    }
+
                 }
-
-                //Remove attributed not to be copied
-                newWebformMetadata.Attributes.Remove("adx_webformmetadataid");
-
-                //
-
-                //Change reference for webform step 
-                newWebformMetadata["adx_webformstep"] = new EntityReference("adx_webformstep", targetStepId);
-
-                //create webform
-                 _service.Create(newWebformMetadata);
-
+            }
+            catch (Exception error)
+            {
+                _logger.LogInfo(error.Message);
+                throw;
             }
         }
 
@@ -159,12 +178,15 @@ namespace KT.PortalsWebformCloner.AppCode
 
                     //Remove attributed not to be copied
                     newWebformstep.Attributes.Remove("adx_webformstepid");
-                    //
                     newWebformstep.Attributes.Remove("adx_nextstep");
                     newWebformstep.Attributes.Remove("adx_entitysourcestep");
                     newWebformstep.Attributes.Remove("adx_conditiondefaultnextstep");
                     newWebformstep.Attributes.Remove("adx_referenceentitystep");
                     newWebformstep.Attributes.Remove("adx_previousstep");
+
+                    newWebformstep.Attributes.Remove("statecode");
+                    newWebformstep.Attributes.Remove("statuscode");
+
 
                     //change reference to webformstep TODO
                     newWebformstep["adx_webform"] = new EntityReference("adx_webform", _clonedWebformId);
@@ -190,6 +212,19 @@ namespace KT.PortalsWebformCloner.AppCode
                     //add guid to map
                     webformStepGuids.Add(webFormStep.Id, clonedWebformstepId);
 
+                    //if webform was inactive, deactivate the webform step
+                    if (webFormStep.GetAttributeValue<OptionSetValue>("statecode").Value == 1)
+                    {
+                        var clonedStep = new Entity("adx_webformstep", clonedWebformstepId)
+                        {
+                            ["statuscode"] = webFormStep.GetAttributeValue<OptionSetValue>("statuscode"),
+                            ["statecode"] = webFormStep.GetAttributeValue<OptionSetValue>("statecode")
+                        };
+                        _service.Update(clonedStep);
+                    }
+
+                    worker.ReportProgress(70, "Cloning Webform Metadata");
+
                     //Clone webformstepMetdata
                     CloneWebformMetadata(webFormStep, clonedWebformstepId);
                 }
@@ -197,11 +232,10 @@ namespace KT.PortalsWebformCloner.AppCode
             catch (Exception error)
             {
                 _logger.LogInfo(error.Message);
-                var percentage = 85;
-                worker.ReportProgress(percentage, false);
+                throw;
             }
             return false;
-            
+
 
         }
 
@@ -224,6 +258,8 @@ namespace KT.PortalsWebformCloner.AppCode
                 //Remove attributed not to be copied
                 newWebform.Attributes.Remove("adx_webformid");
                 newWebform.Attributes.Remove("adx_startstep");
+                newWebform.Attributes.Remove("statecode");
+                newWebform.Attributes.Remove("statuscode");
 
                 //Set the name of the webform
                 newWebform["adx_name"] = String.IsNullOrEmpty(cs.WebformName)
@@ -233,13 +269,22 @@ namespace KT.PortalsWebformCloner.AppCode
 
                 //Create webform
                 _clonedWebformId = _service.Create(newWebform);
-                worker.ReportProgress(25, true);
+
+                if (_webFormToClone.GetAttributeValue<OptionSetValue>("statecode").Value == 1)
+                {
+                    var clonedwebform = new Entity("adx_webform", _clonedWebformId)
+                    {
+                        ["statuscode"] = _webFormToClone.GetAttributeValue<OptionSetValue>("statuscode"),
+                        ["statecode"] = _webFormToClone.GetAttributeValue<OptionSetValue>("statecode")
+                    };
+                    _service.Update(clonedwebform);
+                }
+
             }
             catch (Exception error)
             {
                 _logger.LogInfo(error.Message);
-                var percentage = 25;
-                worker.ReportProgress(percentage, false);
+                throw;
             }
 
 

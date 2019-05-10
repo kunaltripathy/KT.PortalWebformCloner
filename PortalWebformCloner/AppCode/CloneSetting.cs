@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KT.PortalsWebformCloner.AppCode
+namespace KT.PortalWebformCloner.AppCode
 {
     public class CloneSetting
     {
@@ -8,6 +8,6 @@ namespace KT.PortalsWebformCloner.AppCode
         public string WebformName { get; set; }
         public Guid SelectedWebformId { get; set; }
 
-     
+
     }
 }

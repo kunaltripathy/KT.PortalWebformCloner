@@ -7,13 +7,13 @@ using System.Reflection;
 using XrmToolBox.Extensibility;
 using XrmToolBox.Extensibility.Interfaces;
 
-namespace KT.PortalsWebformCloner
+namespace KT.PortalWebformCloner
 {
     // Do not forget to update version number and author (company attribute) in AssemblyInfo.cs class
     // To generate Base64 string for Images below, you can use https://www.base64-image.de/
     [Export(typeof(IXrmToolBoxPlugin)),
-        ExportMetadata("Name", "Portals Webform Cloner"),
-        ExportMetadata("Description", "Portals webform Clone tool to create Copy of webform with different Modes"),
+        ExportMetadata("Name", "Portal Webform Cloner"),
+        ExportMetadata("Description", "Portal webform Clone tool to create Copy of webform with different Modes"),
         // Please specify the base64 content of a 32x32 pixels image
         ExportMetadata("SmallImageBase64", "/9j/4AAQSkZJRgABAQEAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAgACADASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAABggBAgMK/8QAKxAAAgMAAQMDAgUFAAAAAAAAAgMBBAUGAAcREiExCFETFBVTYRYjMpPS/8QAGAEAAwEBAAAAAAAAAAAAAAAAAgMFBgj/xAAfEQADAQACAwEBAQAAAAAAAAABAgMEBQYREhMUIiP/2gAMAwEAAhEDEQA/AOb/AK1Qh1lya1ZLrFmy5NatWrqY+xZs2GCmvWrV0ibrFmw4wTXrpBjnuMFKA2EIzl0/H0b0ez54vcXTs6PI5+onNpV7XbLKHMzGYi8Krdqu5Lp4uhN4NpWwGLGr/V+xi0mc64JxBJ8s7PJ0e4lahXDlTuvaF6d13Zzzcbu5Q56ZM6ZcMaV9abtUcc9e6sp1OHicTWGrluRadFw4JX0fKzokaaDq/AnsvNZuIG3LgFk0Va+qiJ7JlhTQ2fJN3T9XIahP8/H41dG1a6Sj7zVmoiFMWxLGpas1OS1qHKaBral6TJTkuUyBYpyWganJYIsU0CWwRMSGKdOl9YNHgaNzHuZscYocz0KVS7ax+F/krqk4dr8dtdnOdKnoHmWr0Vv0tvbTezaQcx5xwa23kffSvjd0iu03Jb0/qXYl7X17judTFo48bpF2zaB5KujFGeFgFTXjqR9MmyYE9MGSgVGLIquxcM3X+Y2cS+qOw5KBfvDyAwZQwWsiS+fQgPpfPT+41DJ5YAM2qUPsFIV0OsHA+qQQpjjgYmIkvQsSL0xJDEz48RMx9+jHhebI8lzrOls73ClZpu1qnJ8rH1rujjbuVWbo8bsVF5kL0athm9Xz66tSmQ2cc3DqK9R1IWYVBEM+RIhn48iUjPj7eYmJ8fx1PrZ+4z/Yf/XVrXCumGjOtvgt41j9UlKtZfVChpNdCWzM6e3si6M14lgBWVU9kaZmtOFo2aX2MbTr82pSc6CbKwR2i0rqrePDNG0qgH/Ok38OCjkuZP63oNynb+9Usmq+7Y1Mq1X0L+npVkaO2+4EgbGWI2LV5Lbjyl+ixRaLJmbYzI05D65QFhLUGQCwQcs1FKzjyBwJwMyBx7iUR6Sj4meq/iM/db7z5n+4fz9/8vn2j3/jqszM/MzM/HkpmZ8R8R5mZ9o+3RZpVhKMXqLCUpy+jTVK0M0VPo/z9Ihn8FnEozmCfE5ooCgbUnWlaLMy+lGcIrlkQMxb0X39qFV8+ql6O5ABd3byx//Z"),
         // Please specify the base64 content of a 80x80 pixels image

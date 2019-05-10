@@ -1,4 +1,4 @@
-﻿namespace KT.PortalsWebformCloner
+﻿namespace KT.PortalWebformCloner
 {
     partial class MyPluginControl
     {

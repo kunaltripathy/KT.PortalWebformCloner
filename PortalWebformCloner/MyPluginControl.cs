@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using KT.PortalsWebformCloner.AppCode;
+using KT.PortalWebformCloner.AppCode;
 using McTools.Xrm.Connection;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
@@ -10,9 +10,9 @@ using XrmToolBox.Extensibility;
 using XrmToolBox.Extensibility.Args;
 using XrmToolBox.Extensibility.Interfaces;
 
-namespace KT.PortalsWebformCloner
+namespace KT.PortalWebformCloner
 {
-    public partial class MyPluginControl : PluginControlBase , IStatusBarMessenger, IHelpPlugin, IGitHubPlugin
+    public partial class MyPluginControl : PluginControlBase, IStatusBarMessenger, IHelpPlugin, IGitHubPlugin
     {
         #region IHelpPlugin implementation
         public string HelpUrl => "https://kunaltripathy.com";
@@ -20,7 +20,7 @@ namespace KT.PortalsWebformCloner
         #endregion IHelpPlugin implementation
 
         #region IGitHubPlugin implementation
-        public string RepositoryName => "KT.PortalsWebformCloner";
+        public string RepositoryName => "KT.PortalWebformCloner";
         public string UserName => "kunaltripathy";
         #endregion IGitHubPlugin implementation
 
@@ -37,7 +37,7 @@ namespace KT.PortalsWebformCloner
 
         private void MyPluginControl_Load(object sender, EventArgs e)
         {
-          //  ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
+            //  ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
 
             // Loads or creates the settings for the plugin
             if (!SettingsManager.Instance.TryLoad(GetType(), out _mySettings))
@@ -152,12 +152,13 @@ namespace KT.PortalsWebformCloner
                     bw.ReportProgress(80, "Updating References");
 
                     evt.Cancel = wcm.UpdateStepReferences((CloneSetting)evt.Argument, Service, bw);
+
                 },
                 PostWorkCallBack = evt =>
                 {
                     if (evt.Error != null)
                     {
-                        MessageBox.Show(this, $"An error occured: {evt.Error.Message}", "Error", MessageBoxButtons.OK,
+                        MessageBox.Show(this, $"Webform: '{cbWebformToClone.SelectedItem.ToString()}' could not be cloned becouse of an error: {evt.Error.Message}", "Error", MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
                         return;
                     }
@@ -171,9 +172,10 @@ namespace KT.PortalsWebformCloner
                 {
                     SetWorkingMessage(evt.UserState.ToString());
                     SendMessageToStatusBar?.Invoke(this, new StatusBarMessageEventArgs(evt.UserState.ToString()));
-                  
+
 
                 }
+
             });
 
 
@@ -200,10 +202,11 @@ namespace KT.PortalsWebformCloner
                 {
 
                     bw.ReportProgress(0, "Loading WebForms");
-  
+
                     evt.Result = Service.RetrieveMultiple(new QueryExpression("adx_webform")
                     {
-                        ColumnSet = new ColumnSet(true)
+                        ColumnSet = new ColumnSet(true),
+                        Orders = { new OrderExpression("adx_name", OrderType.Ascending) }
                     }).Entities.Select(record => new Webform(record)).ToList();
                 },
                 PostWorkCallBack = evt =>
@@ -218,7 +221,7 @@ namespace KT.PortalsWebformCloner
                     cbWebformToClone.Items.AddRange(((List<Webform>)evt.Result).ToArray());
 
                     cbWebformToClone.Enabled = true;
-                    
+
                 },
                 ProgressChanged = evt =>
                 {
